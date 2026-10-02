@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Writing Academy</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="bg-decor" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+  <div class="blob b5"></div>
+</div>
+
+<div class="container">
+
+  <!-- ===================== HOME SCREEN ===================== -->
+  <section id="screen-home" class="screen active">
+    <div class="hero">
+      <div class="hero-stars" id="hero-stars"></div>
+      <h1 class="neon-logo">IELTS</h1>
+      <p class="hero-sub">Writing Academy ✨ Luyện viết cùng hội bạn cú thông thái</p>
+      <div class="hero-mascots">
+        <div class="mascot mascot-girl" id="mascot-girl"></div>
+        <div class="mascot mascot-owl" id="mascot-owl"></div>
+        <div class="mascot mascot-boy" id="mascot-boy"></div>
+      </div>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card card-pink">
+        <div class="card-illustration" id="icon-task1"></div>
+        <span class="card-chip">⏱ 20 phút</span>
+        <h3>Practice Task 1</h3>
+        <p>Luyện mô tả biểu đồ, bảng số liệu hoặc quy trình.</p>
+        <button class="btn btn-start" data-mode="task1">Start 🚀</button>
+      </div>
+
+      <div class="mode-card card-blue">
+        <div class="card-illustration" id="icon-task2"></div>
+        <span class="card-chip">⏱ 40 phút</span>
+        <h3>Practice Task 2</h3>
+        <p>Luyện viết bài luận nghị luận học thuật.</p>
+        <button class="btn btn-start" data-mode="task2">Start 🚀</button>
+      </div>
+
+      <div class="mode-card card-purple">
+        <div class="card-illustration" id="icon-mock"></div>
+        <span class="card-chip">⏱ 60 phút</span>
+        <h3>Mock Test</h3>
+        <p>Thi thử trọn bộ Task 1 + Task 2, giống thi thật.</p>
+        <button class="btn btn-start" data-mode="mock">Start 🚀</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRACTICE SCREEN ===================== -->
+  <section id="screen-exam" class="screen">
+    <div class="exam-topbar">
+      <div class="exam-title" id="exam-title">Task 1</div>
+      <div id="exam-tabs" class="tabs"></div>
+      <div class="timer-badge">
+        <span class="timer-icon">⏰</span>
+        <span class="timer" id="timer-display">20:00</span>
+      </div>
+    </div>
+
+    <div id="panel-task1" class="task-panel split-panel">
+      <div class="pane pane-question">
+        <span class="type-badge">TASK 1</span>
+        <p id="t1-instruction"></p>
+        <div id="t1-chart"></div>
+      </div>
+      <div class="pane pane-editor">
+        <div class="editor-wrap">
+          <textarea class="essay-input" id="t1-essay" placeholder="Viết bài Task 1 của bạn vào đây..."></textarea>
+          <span class="word-count" id="t1-wordcount">0 từ (bắt buộc ≥135, nên ≤165)</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-task2" class="task-panel split-panel">
+      <div class="pane pane-question">
+        <span class="type-badge" id="t2-type">TASK 2</span>
+        <p id="t2-instruction"></p>
+      </div>
+      <div class="pane pane-editor">
+        <div class="editor-wrap">
+          <textarea class="essay-input" id="t2-essay" placeholder="Viết bài Task 2 của bạn vào đây..."></textarea>
+          <span class="word-count" id="t2-wordcount">0 từ (tối thiểu 250)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-actions-bar">
+      <button class="btn btn-exit" id="btn-exit">🚪 Thoát</button>
+      <button class="btn btn-submit" id="btn-submit">✅ Nộp bài</button>
+    </div>
+  </section>
+
+  <!-- ===================== RESULT SCREEN ===================== -->
+  <section id="screen-result" class="screen">
+    <div id="result-content"></div>
+    <div class="result-actions">
+      <button class="btn btn-primary" id="btn-detail">🔍 Xem chi tiết</button>
+      <button class="btn btn-secondary" id="btn-restart">🏠 Về trang chủ</button>
+    </div>
+  </section>
+
+  <!-- ===================== DETAIL SCREEN ===================== -->
+  <section id="screen-detail" class="screen">
+    <div class="exam-topbar">
+      <div class="exam-title">🔍 Chi tiết bài sửa</div>
+      <div id="detail-tabs" class="tabs"></div>
+      <button class="btn btn-secondary" id="btn-detail-back">⬅ Quay lại điểm số</button>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><i class="dot dot-task"></i>Task Achievement/Response</span>
+      <span class="legend-item"><i class="dot dot-coherence"></i>Coherence &amp; Cohesion</span>
+      <span class="legend-item"><i class="dot dot-lexical"></i>Lexical Resource</span>
+      <span class="legend-item"><i class="dot dot-grammar"></i>Grammar</span>
+      <span class="legend-item"><i class="dot dot-positive"></i>Điểm hay</span>
+    </div>
+
+    <div id="detail-panel-task1" class="detail-panel">
+      <div class="essay-display" id="detail-task1-essay"></div>
+      <div class="annotation-list" id="detail-task1-annotations"></div>
+    </div>
+
+    <div id="detail-panel-task2" class="detail-panel">
+      <div class="essay-display" id="detail-task2-essay"></div>
+      <div class="annotation-list" id="detail-task2-annotations"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===================== EXIT CONFIRM MODAL ===================== -->
+<div class="modal-overlay" id="modal-exit">
+  <div class="modal-card">
+    <div class="modal-mascot" id="modal-owl"></div>
+    <h3>Thoát bài làm?</h3>
+    <p>Bài làm hiện tại sẽ không được lưu lại. Bạn có chắc chắn muốn thoát không?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-exit-cancel">Ở lại làm bài</button>
+      <button class="btn btn-danger" id="btn-exit-confirm">Thoát</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/illustrations.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/questions.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
