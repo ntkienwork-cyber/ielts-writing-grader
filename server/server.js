@@ -391,7 +391,8 @@ Follow the scanning procedure, then apply the scoring algorithm step by step for
 }
 
 function parseJsonFromText(text) {
-  const match = text.match(/\{[\s\S]*\}/);
+  const cleaned = (text || '').replace(/```json|```/g, '');
+  const match = cleaned.match(/\{[\s\S]*\}/);
   if (!match) {
     throw new Error('Không parse được kết quả JSON trả về từ AI.');
   }
@@ -445,11 +446,7 @@ function roundIELTS(avg) {
   return whole + 1;
 }
 
-async function gradeEssay(taskType, question, essay) {
-  if (!API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY chưa được cấu hình trên server. Hãy tạo file server/.env từ server/.env.example.');
-  }
-
+async function callClaude(taskType, question, essay) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -459,7 +456,7 @@ async function gradeEssay(taskType, question, essay) {
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: buildSystemPrompt(taskType),
       messages: [{ role: 'user', content: buildUserPrompt(taskType, question, essay) }],
     }),
@@ -472,7 +469,37 @@ async function gradeEssay(taskType, question, essay) {
 
   const data = await response.json();
   const textContent = (data.content || []).map((block) => block.text || '').join('');
-  const parsed = parseJsonFromText(textContent);
+  return { textContent, stopReason: data.stop_reason };
+}
+
+// The model occasionally returns a response we can't parse as JSON (e.g. a
+// truncated or malformed completion). Retrying once resolves most of these
+// transient cases; if both attempts fail, log the raw text (stop_reason +
+// a snippet) so the real cause is visible in the server logs instead of
+// just the generic "couldn't parse" message.
+async function gradeEssay(taskType, question, essay) {
+  if (!API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY chưa được cấu hình trên server. Hãy tạo file server/.env từ server/.env.example.');
+  }
+
+  let parsed;
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const { textContent, stopReason } = await callClaude(taskType, question, essay);
+    try {
+      parsed = parseJsonFromText(textContent);
+      break;
+    } catch (err) {
+      lastError = err;
+      console.error(
+        `Grading JSON parse failed (attempt ${attempt}/2, taskType=${taskType}, stop_reason=${stopReason}). Raw response snippet:`,
+        textContent.slice(0, 2000)
+      );
+    }
+  }
+  if (!parsed) {
+    throw lastError || new Error('Không parse được kết quả JSON trả về từ AI.');
+  }
 
   // Normalize + compute the overall band ourselves rather than trusting model arithmetic.
   const wordCount = countWords(essay);

@@ -263,7 +263,7 @@ async function submitExam() {
       <div class="error-box">
         <strong>Không thể chấm bài tự động.</strong><br>
         ${escapeHtml(err.message)}<br><br>
-        Hãy kiểm tra server có đang chạy và đã cấu hình ANTHROPIC_API_KEY trong file .env chưa.
+        Vui lòng thử nộp lại bài. Nếu lỗi này lặp lại nhiều lần, hãy báo cho quản trị viên để kiểm tra log server.
       </div>`;
   }
 }
