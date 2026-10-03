@@ -1,55 +1,72 @@
 // Hand-drawn-style inline SVG illustrations — academy/school themed, pastel palette.
 // Kept as simple flat shapes so they stay crisp at any size with no external assets.
 
-// Refined "professor owl" mark — a slimmer silhouette, deep navy/plum body with
-// gold accents (matching the site's own purple/gold palette), a sharp confident
-// gaze instead of giant round eyes, so it reads as a mature academic mascot
-// rather than a children's-book character.
+// "Professor owl" mark — warm brown feathers with a cream belly and round
+// wood-rimmed glasses for a kindly, approachable academic look; dark navy
+// mortarboard with a yellow cord keeps it tied to the site's accent color.
 function owlMascotSVG() {
   return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="owlBody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#4B4376"/>
-        <stop offset="100%" stop-color="#2E2A4D"/>
+        <stop offset="0%" stop-color="#9C6B3F"/>
+        <stop offset="100%" stop-color="#6B4423"/>
       </linearGradient>
       <linearGradient id="owlWing" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#5B4D8A"/>
-        <stop offset="100%" stop-color="#3B3355"/>
+        <stop offset="0%" stop-color="#8B5E3C"/>
+        <stop offset="100%" stop-color="#5A3A1E"/>
       </linearGradient>
       <linearGradient id="owlChest" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#FFF6DC"/>
-        <stop offset="100%" stop-color="#FFE9B0"/>
+        <stop offset="0%" stop-color="#FFF8E7"/>
+        <stop offset="100%" stop-color="#F0DBAE"/>
+      </linearGradient>
+      <linearGradient id="owlCap" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2A3B6B"/>
+        <stop offset="100%" stop-color="#141B36"/>
+      </linearGradient>
+      <linearGradient id="owlGlasses" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#C8955B"/>
+        <stop offset="100%" stop-color="#8B5A2B"/>
       </linearGradient>
     </defs>
 
     <ellipse cx="100" cy="207" rx="50" ry="8" fill="#00000018"/>
-    <ellipse cx="82" cy="193" rx="10" ry="6" fill="#E8B64A"/>
-    <ellipse cx="118" cy="193" rx="10" ry="6" fill="#E8B64A"/>
+    <ellipse cx="82" cy="193" rx="10" ry="6" fill="#DD9138"/>
+    <ellipse cx="118" cy="193" rx="10" ry="6" fill="#DD9138"/>
 
     <path d="M46,102 Q22,142 46,186 Q61,160 58,122 Z" fill="url(#owlWing)"/>
     <path d="M154,102 Q178,142 154,186 Q139,160 142,122 Z" fill="url(#owlWing)"/>
 
     <ellipse cx="100" cy="120" rx="58" ry="78" fill="url(#owlBody)"/>
     <ellipse cx="100" cy="138" rx="34" ry="52" fill="url(#owlChest)"/>
-    <path d="M84,112 Q100,120 116,112" stroke="#E8C97A" stroke-width="2" fill="none" opacity="0.6"/>
-    <path d="M82,132 Q100,142 118,132" stroke="#E8C97A" stroke-width="2" fill="none" opacity="0.6"/>
-    <path d="M84,152 Q100,162 116,152" stroke="#E8C97A" stroke-width="2" fill="none" opacity="0.6"/>
+    <path d="M84,112 Q100,120 116,112" stroke="#D9A857" stroke-width="2" fill="none" opacity="0.55"/>
+    <path d="M82,132 Q100,142 118,132" stroke="#D9A857" stroke-width="2" fill="none" opacity="0.55"/>
+    <path d="M84,152 Q100,162 116,152" stroke="#D9A857" stroke-width="2" fill="none" opacity="0.55"/>
 
     <ellipse cx="100" cy="92" rx="52" ry="46" fill="url(#owlBody)"/>
-    <ellipse cx="78" cy="90" rx="20" ry="22" fill="#F5F1FF"/>
-    <ellipse cx="122" cy="90" rx="20" ry="22" fill="#F5F1FF"/>
-    <circle cx="80" cy="92" r="7.5" fill="#211C3B"/>
-    <circle cx="120" cy="92" r="7.5" fill="#211C3B"/>
+    <ellipse cx="78" cy="90" rx="20" ry="22" fill="#FFFBF2"/>
+    <ellipse cx="122" cy="90" rx="20" ry="22" fill="#FFFBF2"/>
+    <circle cx="80" cy="92" r="7.5" fill="#3B2414"/>
+    <circle cx="120" cy="92" r="7.5" fill="#3B2414"/>
     <circle cx="82.5" cy="89" r="2" fill="#fff" opacity="0.9"/>
     <circle cx="122.5" cy="89" r="2" fill="#fff" opacity="0.9"/>
-    <path d="M62,72 L92,78" stroke="#E8B64A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    <path d="M138,72 L108,78" stroke="#E8B64A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    <path d="M93,104 L107,104 L100,118 Z" fill="#E8B64A"/>
+    <path d="M62,76 Q77,65 94,74" stroke="#DD9138" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M138,76 Q123,65 106,74" stroke="#DD9138" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M93,104 L107,104 L100,118 Z" fill="#DD9138"/>
+
+    <g stroke="url(#owlGlasses)" stroke-width="4.5" stroke-linecap="round" fill="#EAF6FF" fill-opacity="0.12">
+      <circle cx="78" cy="92" r="24"/>
+      <circle cx="122" cy="92" r="24"/>
+      <path d="M101,90 Q100,94 99,90" fill="none"/>
+      <path d="M54,88 L42,82" fill="none"/>
+      <path d="M146,88 L158,82" fill="none"/>
+    </g>
+    <path d="M62,78 A24,24 0 0 1 66,74" stroke="#F0D9B8" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M106,78 A24,24 0 0 1 110,74" stroke="#F0D9B8" stroke-width="1.5" fill="none" opacity="0.5"/>
 
     <g>
-      <rect x="58" y="34" width="84" height="9" rx="3" fill="url(#owlWing)"/>
-      <polygon points="100,12 158,38 100,50 42,38" fill="#5B4D8A"/>
-      <circle cx="100" cy="38" r="4.5" fill="#2E2A4D"/>
+      <rect x="58" y="34" width="84" height="9" rx="3" fill="url(#owlCap)"/>
+      <polygon points="100,12 158,38 100,50 42,38" fill="url(#owlCap)"/>
+      <circle cx="100" cy="38" r="4.5" fill="#FFD166"/>
       <line x1="148" y1="37" x2="148" y2="66" stroke="#FFD166" stroke-width="2.5"/>
       <circle cx="148" cy="70" r="5" fill="#FFD166"/>
     </g>
