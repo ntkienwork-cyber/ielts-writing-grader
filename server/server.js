@@ -324,7 +324,7 @@ const ANNOTATION_INSTRUCTIONS = `You must also produce an "annotations" array us
 - "quote" MUST be an EXACT, character-for-character substring copied from the candidate's essay (3 to 15 words long). Do not paraphrase it, truncate it with "...", or fix its errors — copy it exactly as written, typos included. This is critical: the app uses this exact string to locate and highlight the text, so an inexact quote will fail to highlight anything.
 - "category" must be exactly one of: "task" (content/idea issues — Task Achievement/Response), "coherence" (organisation, linking, paragraphing), "lexical" (word choice, collocation, spelling), "grammar" (tense, agreement, sentence structure, articles, prepositions), "positive" (something done well — any category).
 - "issue": one short sentence explaining why it's a problem (or why it's good, for "positive"), referencing the underlying rule.
-- "suggestion": a corrected/improved version of that exact phrase, or null for "positive" annotations.
+- "suggestion": a corrected/improved version of that exact phrase, or an empty string "" for "positive" annotations.
 - Produce roughly 6-14 annotations per essay depending on length and number of issues — enough to be genuinely useful without overwhelming the student. Spread them across the essay rather than clustering all in one paragraph. Do not create two annotations with the same "quote".`;
 
 function buildSystemPrompt(taskType) {
@@ -351,23 +351,61 @@ ${FEEDBACK_STYLE}
 
 ${ANNOTATION_INSTRUCTIONS}
 
-Respond with ONLY a single valid JSON object (no markdown fences, no commentary before or after) matching exactly this shape:
+Once you have completed the scanning procedure and the scoring algorithm for all 4 criteria, call the "submit_grading" tool exactly once with your full result (criteria bands + explanations, strengths, weaknesses, suggestions, a general comment, and annotations). Do not write the result as plain text or markdown — submit it only through the tool call.`;
+}
 
-{
-  "criteria": {
-    "${taKey}": { "band": <WHOLE INTEGER, 0-9, e.g. 6 — never 6.5>, "explanation": "<ceiling band + any negative-feature drop, citing specific evidence from this essay>" },
-    "coherenceCohesion": { "band": <integer>, "explanation": "<...>" },
-    "lexicalResource": { "band": <integer>, "explanation": "<...>" },
-    "grammaticalRange": { "band": <integer>, "explanation": "<...>" }
-  },
-  "strengths": ["...", "..."],
-  "weaknesses": ["...", "..."],
-  "suggestions": ["...", "..."],
-  "generalComment": "<2-3 sentence encouraging but honest overall summary>",
-  "annotations": [
-    { "quote": "<exact substring>", "category": "task|coherence|lexical|grammar|positive", "issue": "<why>", "suggestion": "<fix or null>" }
-  ]
-}`;
+// JSON Schema for the "submit_grading" tool. Forcing the model to respond
+// through a tool call (tool_choice below) instead of free-form text makes
+// the Anthropic API itself responsible for producing syntactically valid
+// structured output, which eliminates the malformed/truncated-JSON parse
+// failures that free-text generation was prone to.
+function buildToolSchema(taskType) {
+  const taKey = taskType === 'task1' ? 'taskAchievement' : 'taskResponse';
+  const criterionSchema = {
+    type: 'object',
+    properties: {
+      band: { type: 'integer', minimum: 0, maximum: 9, description: 'Whole integer band, 0-9 — never a half band like 6.5.' },
+      explanation: { type: 'string', description: 'Ceiling band + any negative-feature drop, citing specific evidence from this essay.' },
+    },
+    required: ['band', 'explanation'],
+  };
+  return {
+    name: 'submit_grading',
+    description: 'Submit the completed IELTS Writing grading result for this essay.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        criteria: {
+          type: 'object',
+          properties: {
+            [taKey]: criterionSchema,
+            coherenceCohesion: criterionSchema,
+            lexicalResource: criterionSchema,
+            grammaticalRange: criterionSchema,
+          },
+          required: [taKey, 'coherenceCohesion', 'lexicalResource', 'grammaticalRange'],
+        },
+        strengths: { type: 'array', items: { type: 'string' } },
+        weaknesses: { type: 'array', items: { type: 'string' } },
+        suggestions: { type: 'array', items: { type: 'string' } },
+        generalComment: { type: 'string', description: '2-3 sentence encouraging but honest overall summary.' },
+        annotations: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              quote: { type: 'string', description: 'Exact, character-for-character substring copied from the essay.' },
+              category: { type: 'string', enum: ['task', 'coherence', 'lexical', 'grammar', 'positive'] },
+              issue: { type: 'string' },
+              suggestion: { type: 'string', description: 'Corrected/improved phrasing, or an empty string for "positive" annotations.' },
+            },
+            required: ['quote', 'category', 'issue', 'suggestion'],
+          },
+        },
+      },
+      required: ['criteria', 'strengths', 'weaknesses', 'suggestions', 'generalComment', 'annotations'],
+    },
+  };
 }
 
 function buildUserPrompt(taskType, question, essay) {
@@ -387,7 +425,7 @@ Candidate's essay (verbatim, including any typos):
 ${essay}
 """
 
-Follow the scanning procedure, then apply the scoring algorithm step by step for each criterion, then respond with the JSON object only.`;
+Follow the scanning procedure, then apply the scoring algorithm step by step for each criterion, then call the submit_grading tool with the result.`;
 }
 
 function parseJsonFromText(text) {
@@ -459,6 +497,8 @@ async function callClaude(taskType, question, essay) {
       max_tokens: 8192,
       system: buildSystemPrompt(taskType),
       messages: [{ role: 'user', content: buildUserPrompt(taskType, question, essay) }],
+      tools: [buildToolSchema(taskType)],
+      tool_choice: { type: 'tool', name: 'submit_grading' },
     }),
   });
 
@@ -468,15 +508,23 @@ async function callClaude(taskType, question, essay) {
   }
 
   const data = await response.json();
+  const toolUse = (data.content || []).find((block) => block.type === 'tool_use' && block.name === 'submit_grading');
+  if (toolUse) {
+    return { parsed: toolUse.input, stopReason: data.stop_reason };
+  }
+
+  // Defensive fallback: forced tool_choice should always produce a
+  // tool_use block, but if the API ever returns plain text instead, fall
+  // back to the old regex-based JSON extraction rather than failing
+  // outright.
   const textContent = (data.content || []).map((block) => block.text || '').join('');
-  return { textContent, stopReason: data.stop_reason };
+  return { parsed: parseJsonFromText(textContent), stopReason: data.stop_reason, textContent };
 }
 
-// The model occasionally returns a response we can't parse as JSON (e.g. a
-// truncated or malformed completion). Retrying once resolves most of these
-// transient cases; if both attempts fail, log the raw text (stop_reason +
-// a snippet) so the real cause is visible in the server logs instead of
-// just the generic "couldn't parse" message.
+// A malformed/empty response is now rare since grading goes through a
+// forced tool call (the API guarantees well-formed structured output), but
+// retry once anyway for transient failures, logging enough context to
+// diagnose anything that still slips through.
 async function gradeEssay(taskType, question, essay) {
   if (!API_KEY) {
     throw new Error('ANTHROPIC_API_KEY chưa được cấu hình trên server. Hãy tạo file server/.env từ server/.env.example.');
@@ -485,16 +533,13 @@ async function gradeEssay(taskType, question, essay) {
   let parsed;
   let lastError;
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const { textContent, stopReason } = await callClaude(taskType, question, essay);
     try {
-      parsed = parseJsonFromText(textContent);
+      const result = await callClaude(taskType, question, essay);
+      parsed = result.parsed;
       break;
     } catch (err) {
       lastError = err;
-      console.error(
-        `Grading JSON parse failed (attempt ${attempt}/2, taskType=${taskType}, stop_reason=${stopReason}). Raw response snippet:`,
-        textContent.slice(0, 2000)
-      );
+      console.error(`Grading failed (attempt ${attempt}/2, taskType=${taskType}):`, err.message);
     }
   }
   if (!parsed) {
