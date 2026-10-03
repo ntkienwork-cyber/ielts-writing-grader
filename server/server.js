@@ -291,15 +291,20 @@ function renderBandGuide(title, bandsObj) {
   return lines.join('\n');
 }
 
-const SCORING_ALGORITHM = `SCORING ALGORITHM — apply this exact procedure separately for EACH of the 4 criteria. Do not assign a band from general impression; follow these steps mechanically:
+const SCORING_ALGORITHM = `SCORING ALGORITHM — apply this exact procedure separately for EACH of the 4 criteria. Do not assign a band from general impression; follow these steps mechanically, IN THIS ORDER:
 
-1. Reading from band 9 downward, find the HIGHEST band whose POSITIVE features are ALL genuinely satisfied by the essay. Call this the "ceiling band".
-2. Then examine EVERY band BELOW the ceiling band (not just the one directly below — all of them, down to band 2) and check whether the essay matches ANY of that band's NEGATIVE features.
-3. If the essay matches at least one negative feature in one or more bands below the ceiling, the final score for that criterion = the LOWEST-numbered band among ALL the bands where a negative feature was matched (i.e. the worst one found, even if it is several bands below the ceiling — not just the first one you notice).
-4. If no negative feature is matched in any band below the ceiling, the final score = the ceiling band itself.
-5. Hard overrides (apply before the steps above, and skip the rest of the algorithm if triggered): if the essay is 20 words or fewer, score that criterion at band 1; if the content is wholly unrelated/off-topic, in a language other than English throughout, or is a memorised/copied response, score at band 1 (or 0 only for a totally blank/unattempted/fully memorised response, which you will not normally see here).
-6. The score for each criterion MUST be a whole integer band (e.g. 4, 5, 6, 7, 8) — NEVER a half band like 6.5. Only the final combined overall average (computed separately, not by you) may contain a fraction.
-7. In your "explanation" for each criterion, briefly state: (a) the ceiling band it initially qualified for and why, and (b) if the score was pulled down, exactly which negative feature(s) and which band caused the drop. If no drop occurred, say so explicitly.`;
+STEP 0 — Hard overrides (check this FIRST, before anything else below). These bands are reserved for pathological, near-non-responses, NOT for a weak-but-genuine attempt:
+  - Band 1 applies ONLY if the CANDIDATE'S ESSAY ITSELF (the text between the "Candidate's essay" delimiters — never the question/prompt, which is always short and is not what you are counting) is 20 words or fewer, OR if its content is WHOLLY unrelated to the question (e.g. random text, a completely different topic, or just the prompt copied back).
+  - Band 0 applies only to a blank/unattempted response, a response entirely in another language, or proven total memorisation — you will essentially never see this in practice.
+  - Calibration guard — read this carefully: a response of normal exam length (roughly 100+ words) that is clearly discussing the correct chart/diagram/topic — even if it has serious grammar problems, weak development, or is somewhat repetitive — is NEVER a band 0-1 response, and is very rarely even band 2-3. Bands that low require the response to be almost entirely absent, incoherent, or off-topic. If you are even slightly unsure whether a hard override applies, it does NOT apply — skip to Step 1 and use the normal ceiling/negative-feature procedure instead. Misfiring this override is a serious grading error.
+  - If no hard override applies (the normal case for any real attempt), proceed to Step 1.
+
+STEP 1 — Find the ceiling: reading from band 9 downward, find the HIGHEST band whose POSITIVE features are ALL genuinely satisfied by the essay. Call this the "ceiling band".
+STEP 2 — Scan for negatives: examine EVERY band BELOW the ceiling band (not just the one directly below — all of them, down to band 2) and check whether the essay matches ANY of that band's NEGATIVE features. Only count a negative feature as "matched" if you can point to specific, concrete evidence in THIS essay — never match one speculatively or from a vague overall impression.
+STEP 3 — If the essay matches at least one negative feature in one or more bands below the ceiling, the final score for that criterion = the LOWEST-numbered band among ALL the bands where a negative feature was matched (i.e. the worst one found, even if it is several bands below the ceiling — not just the first one you notice).
+STEP 4 — If no negative feature is matched in any band below the ceiling, the final score = the ceiling band itself.
+STEP 5 — The score for each criterion MUST be a whole integer band (e.g. 4, 5, 6, 7, 8) — NEVER a half band like 6.5, and never text — output the digit only. Only the final combined overall average (computed separately, not by you) may contain a fraction.
+STEP 6 — In your "explanation" for each criterion, briefly state: (a) the ceiling band it initially qualified for and why, and (b) if the score was pulled down, exactly which negative feature(s) and which band caused the drop. If no drop occurred, say so explicitly. If a hard override from Step 0 was used, say so explicitly instead.`;
 
 const SCANNING_PROCEDURE = `Before applying the scoring algorithm, scan the essay in this order to gather evidence (do not let grammar/spelling distract you during step 1):
 Step 1 — Content & structure scan:
@@ -401,9 +406,24 @@ function countWords(text) {
 
 // Each component score must be a whole band (0-9) — never a half band.
 function clampBandInteger(n) {
-  const num = Number(n);
+  // Defensive: pull the first number out even if the model wraps it in text
+  // (e.g. "Band 7" or "7/9") instead of returning a bare numeric value.
+  const match = String(n).match(/-?\d+(\.\d+)?/);
+  const num = match ? Number(match[0]) : NaN;
   if (Number.isNaN(num)) return 0;
   return Math.min(9, Math.max(0, Math.round(num)));
+}
+
+// Official rule: band 1 (or 0) for a criterion is only valid when the essay is
+// 20 words or fewer, or is wholly unrelated to the task. Word count is
+// something we can check ourselves instead of trusting the model's judgment,
+// so once the response clearly clears that bar, a stray band 0-1 from the
+// model (misfiring the "hard override" instruction) is almost certainly a
+// grading error rather than a genuine band 1 essay — floor it at band 2 to
+// avoid exactly that failure mode.
+function applyLengthFloor(band, wordCount) {
+  if (wordCount > 20 && band < 2) return 2;
+  return band;
 }
 
 // Per-task overall band = average of the 4 (whole-number) criteria scores, then
@@ -455,10 +475,11 @@ async function gradeEssay(taskType, question, essay) {
   const parsed = parseJsonFromText(textContent);
 
   // Normalize + compute the overall band ourselves rather than trusting model arithmetic.
+  const wordCount = countWords(essay);
   const criteria = parsed.criteria || {};
   Object.keys(criteria).forEach((key) => {
     if (criteria[key] && typeof criteria[key].band !== 'undefined') {
-      criteria[key].band = clampBandInteger(criteria[key].band);
+      criteria[key].band = applyLengthFloor(clampBandInteger(criteria[key].band), wordCount);
     }
   });
   const bands = Object.values(criteria).map((c) => c.band).filter((n) => typeof n === 'number');
@@ -467,7 +488,7 @@ async function gradeEssay(taskType, question, essay) {
   const annotations = Array.isArray(parsed.annotations) ? parsed.annotations.filter((a) => a && a.quote && essay.includes(a.quote)) : [];
 
   return {
-    wordCount: countWords(essay),
+    wordCount,
     criteria,
     overallBand,
     strengths: parsed.strengths || [],
@@ -515,4 +536,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, floorToHalfBand, roundIELTS, clampBandInteger, countWords, parseJsonFromText, gradeEssay };
+module.exports = { app, floorToHalfBand, roundIELTS, clampBandInteger, applyLengthFloor, countWords, parseJsonFromText, gradeEssay };
