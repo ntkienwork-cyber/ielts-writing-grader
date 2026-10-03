@@ -151,26 +151,56 @@ function pieChartPair({ left, right }) {
 }
 
 // steps: string[] rendered as a left-to-right process flow with arrows
+// Renders a left-to-right process flow. When there are more than 4 steps,
+// it wraps into 2 rows (boustrophedon/snake layout — row 2 runs right-to-left
+// so the connecting arrow between rows is a short straight drop) so each step
+// stays legible instead of being squeezed into one long, shrinking row.
 function processFlow(steps) {
-  const boxW = 150, boxH = 70, gap = 40;
-  const width = steps.length * boxW + (steps.length - 1) * gap + 20;
-  const height = 140;
-  let inner = '';
-  steps.forEach((step, i) => {
-    const x = 10 + i * (boxW + gap);
-    const y = 30;
-    inner += `<rect x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>`;
-    inner += `<foreignObject x="${x + 6}" y="${y + 6}" width="${boxW - 12}" height="${boxH - 12}">
-      <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:12px;color:#1e3a8a;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;font-family:inherit;">${escapeXml(step)}</div>
-    </foreignObject>`;
-    if (i < steps.length - 1) {
-      const ax = x + boxW;
-      const ay = y + boxH / 2;
-      inner += `<line x1="${ax}" y1="${ay}" x2="${ax + gap - 6}" y2="${ay}" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>`;
-    }
+  const boxW = 160, boxH = 76, gapX = 46, gapY = 56, padding = 16;
+  const perRow = steps.length > 4 ? Math.ceil(steps.length / 2) : steps.length;
+  const rowCount = Math.ceil(steps.length / perRow);
+
+  const positions = steps.map((_, i) => {
+    const rowIdx = Math.floor(i / perRow);
+    const colIdx = i % perRow;
+    const reversed = rowIdx % 2 === 1;
+    const visualCol = reversed ? (perRow - 1 - colIdx) : colIdx;
+    return {
+      x: padding + visualCol * (boxW + gapX),
+      y: padding + rowIdx * (boxH + gapY),
+    };
   });
-  const defs = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#334155"/></marker></defs>`;
-  return svgWrap(width, height, defs + inner);
+
+  const width = perRow * boxW + (perRow - 1) * gapX + padding * 2;
+  const height = rowCount * boxH + (rowCount - 1) * gapY + padding * 2;
+
+  let boxesSvg = '';
+  steps.forEach((step, i) => {
+    const { x, y } = positions[i];
+    boxesSvg += `<rect x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>`;
+    boxesSvg += `<foreignObject x="${x + 6}" y="${y + 6}" width="${boxW - 12}" height="${boxH - 12}">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:16px;font-weight:600;color:#1e3a8a;text-align:center;display:flex;align-items:center;justify-content:center;height:100%;line-height:1.25;font-family:inherit;">${escapeXml(step)}</div>
+    </foreignObject>`;
+  });
+
+  let arrowsSvg = '';
+  for (let i = 0; i < steps.length - 1; i += 1) {
+    const a = positions[i];
+    const b = positions[i + 1];
+    if (a.y === b.y) {
+      const goingRight = b.x > a.x;
+      const x1 = goingRight ? a.x + boxW : a.x;
+      const x2 = goingRight ? b.x : b.x + boxW;
+      const y = a.y + boxH / 2;
+      arrowsSvg += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>`;
+    } else {
+      const x = a.x + boxW / 2;
+      arrowsSvg += `<line x1="${x}" y1="${a.y + boxH}" x2="${x}" y2="${b.y}" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>`;
+    }
+  }
+
+  const defs = `<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#334155"/></marker></defs>`;
+  return svgWrap(width, height, defs + boxesSvg + arrowsSvg);
 }
 
 function dataTable({ headers, rows }) {

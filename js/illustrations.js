@@ -1,89 +1,58 @@
 // Hand-drawn-style inline SVG illustrations — academy/school themed, pastel palette.
 // Kept as simple flat shapes so they stay crisp at any size with no external assets.
 
+// Refined "professor owl" mark — a slimmer silhouette, deep navy/plum body with
+// gold accents (matching the site's own purple/gold palette), a sharp confident
+// gaze instead of giant round eyes, so it reads as a mature academic mascot
+// rather than a children's-book character.
 function owlMascotSVG() {
   return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="100" cy="207" rx="55" ry="9" fill="#00000014"/>
-    <ellipse cx="78" cy="191" rx="14" ry="8" fill="#F6B26B"/>
-    <ellipse cx="122" cy="191" rx="14" ry="8" fill="#F6B26B"/>
-    <ellipse cx="44" cy="130" rx="22" ry="45" fill="#E8C9A0"/>
-    <ellipse cx="156" cy="130" rx="22" ry="45" fill="#E8C9A0"/>
-    <ellipse cx="100" cy="124" rx="65" ry="75" fill="#FFE8D6"/>
-    <ellipse cx="100" cy="140" rx="38" ry="48" fill="#FFF6EC"/>
-    <circle cx="78" cy="100" r="26" fill="#ffffff"/>
-    <circle cx="122" cy="100" r="26" fill="#ffffff"/>
-    <circle cx="78" cy="102" r="11" fill="#3B3355"/>
-    <circle cx="122" cy="102" r="11" fill="#3B3355"/>
-    <circle cx="82" cy="97" r="3.5" fill="#fff"/>
-    <circle cx="126" cy="97" r="3.5" fill="#fff"/>
-    <path d="M94,118 L106,118 L100,132 Z" fill="#F6B26B"/>
-    <path d="M58,80 Q78,66 96,79" stroke="#C9A77C" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M104,79 Q122,66 142,80" stroke="#C9A77C" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <rect x="55" y="42" width="90" height="10" rx="3" fill="#B79CEB"/>
-    <polygon points="100,18 160,46 100,58 40,46" fill="#C9B6E4"/>
-    <circle cx="100" cy="46" r="5" fill="#8A6FD1"/>
-    <line x1="150" y1="44" x2="150" y2="78" stroke="#FFE066" stroke-width="3"/>
-    <circle cx="150" cy="82" r="6" fill="#FFE066"/>
-  </svg>`;
-}
+    <defs>
+      <linearGradient id="owlBody" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#4B4376"/>
+        <stop offset="100%" stop-color="#2E2A4D"/>
+      </linearGradient>
+      <linearGradient id="owlWing" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#5B4D8A"/>
+        <stop offset="100%" stop-color="#3B3355"/>
+      </linearGradient>
+      <linearGradient id="owlChest" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FFF6DC"/>
+        <stop offset="100%" stop-color="#FFE9B0"/>
+      </linearGradient>
+    </defs>
 
-function girlStudentSVG() {
-  return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="100" cy="230" rx="50" ry="8" fill="#00000014"/>
-    <rect x="80" y="180" width="16" height="35" rx="8" fill="#FFDAB9"/>
-    <rect x="104" y="180" width="16" height="35" rx="8" fill="#FFDAB9"/>
-    <ellipse cx="88" cy="218" rx="14" ry="8" fill="#FF9FC4"/>
-    <ellipse cx="112" cy="218" rx="14" ry="8" fill="#FF9FC4"/>
-    <path d="M70,120 Q100,104 130,120 L145,196 Q100,212 55,196 Z" fill="#BEE3F8"/>
-    <rect x="85" y="114" width="30" height="20" fill="#ffffff"/>
-    <rect x="48" y="130" width="18" height="55" rx="9" fill="#FFDAB9" transform="rotate(15 57 130)"/>
-    <rect x="134" y="130" width="18" height="55" rx="9" fill="#FFDAB9" transform="rotate(-15 143 130)"/>
-    <rect x="140" y="170" width="34" height="14" rx="7" fill="#FFF3B0" transform="rotate(-15 157 177)"/>
-    <circle cx="100" cy="80" r="48" fill="#FFDAB9"/>
-    <ellipse cx="72" cy="90" rx="9" ry="6" fill="#FFC1CC"/>
-    <ellipse cx="128" cy="90" rx="9" ry="6" fill="#FFC1CC"/>
-    <ellipse cx="45" cy="95" rx="16" ry="26" fill="#A47C64"/>
-    <ellipse cx="155" cy="95" rx="16" ry="26" fill="#A47C64"/>
-    <path d="M52,60 Q100,18 148,60 Q140,44 100,41 Q60,44 52,60 Z" fill="#A47C64"/>
-    <circle cx="84" cy="80" r="6" fill="#3B3355"/>
-    <circle cx="116" cy="80" r="6" fill="#3B3355"/>
-    <circle cx="86" cy="78" r="2" fill="#fff"/>
-    <circle cx="118" cy="78" r="2" fill="#fff"/>
-    <path d="M90,96 Q100,104 110,96" stroke="#3B3355" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <rect x="65" y="35" width="70" height="8" rx="3" fill="#B79CEB"/>
-    <polygon points="100,14 150,39 100,48 50,39" fill="#C9B6E4"/>
-    <circle cx="100" cy="39" r="4" fill="#8A6FD1"/>
-    <line x1="140" y1="38" x2="140" y2="64" stroke="#FFE066" stroke-width="3"/>
-    <circle cx="140" cy="68" r="5" fill="#FFE066"/>
-  </svg>`;
-}
+    <ellipse cx="100" cy="207" rx="50" ry="8" fill="#00000018"/>
+    <ellipse cx="82" cy="193" rx="10" ry="6" fill="#E8B64A"/>
+    <ellipse cx="118" cy="193" rx="10" ry="6" fill="#E8B64A"/>
 
-function boyStudentSVG() {
-  return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="100" cy="230" rx="50" ry="8" fill="#00000014"/>
-    <rect x="80" y="178" width="16" height="37" rx="8" fill="#FFDAB9"/>
-    <rect x="104" y="178" width="16" height="37" rx="8" fill="#FFDAB9"/>
-    <ellipse cx="88" cy="218" rx="14" ry="8" fill="#7FC7EA"/>
-    <ellipse cx="112" cy="218" rx="14" ry="8" fill="#7FC7EA"/>
-    <path d="M68,118 Q100,100 132,118 L142,196 Q100,210 58,196 Z" fill="#CDEAC0"/>
-    <path d="M90,114 L100,136 L110,114 Z" fill="#ffffff"/>
-    <rect x="46" y="128" width="18" height="55" rx="9" fill="#FFDAB9" transform="rotate(12 55 128)"/>
-    <rect x="136" y="128" width="18" height="55" rx="9" fill="#FFDAB9" transform="rotate(-12 145 128)"/>
-    <rect x="128" y="152" width="42" height="10" rx="2" fill="#FF9FC4" transform="rotate(-10 149 157)"/>
-    <rect x="126" y="162" width="42" height="10" rx="2" fill="#7FC7EA" transform="rotate(-10 147 167)"/>
-    <rect x="124" y="172" width="42" height="10" rx="2" fill="#FFE066" transform="rotate(-10 145 177)"/>
-    <circle cx="100" cy="80" r="48" fill="#FFDAB9"/>
-    <ellipse cx="72" cy="90" rx="8" ry="5" fill="#FFC1CC"/>
-    <ellipse cx="128" cy="90" rx="8" ry="5" fill="#FFC1CC"/>
-    <path d="M52,70 Q55,26 100,24 Q145,26 148,70 Q145,48 100,46 Q55,48 52,70 Z" fill="#6B4A3A"/>
-    <circle cx="84" cy="82" r="6" fill="#3B3355"/>
-    <circle cx="116" cy="82" r="6" fill="#3B3355"/>
-    <circle cx="86" cy="80" r="2" fill="#fff"/>
-    <circle cx="118" cy="80" r="2" fill="#fff"/>
-    <path d="M88,98 Q100,106 112,98" stroke="#3B3355" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <circle cx="84" cy="82" r="14" fill="none" stroke="#3B3355" stroke-width="2.5"/>
-    <circle cx="116" cy="82" r="14" fill="none" stroke="#3B3355" stroke-width="2.5"/>
-    <line x1="98" y1="82" x2="102" y2="82" stroke="#3B3355" stroke-width="2.5"/>
+    <path d="M46,102 Q22,142 46,186 Q61,160 58,122 Z" fill="url(#owlWing)"/>
+    <path d="M154,102 Q178,142 154,186 Q139,160 142,122 Z" fill="url(#owlWing)"/>
+
+    <ellipse cx="100" cy="120" rx="58" ry="78" fill="url(#owlBody)"/>
+    <ellipse cx="100" cy="138" rx="34" ry="52" fill="url(#owlChest)"/>
+    <path d="M84,112 Q100,120 116,112" stroke="#E8C97A" stroke-width="2" fill="none" opacity="0.6"/>
+    <path d="M82,132 Q100,142 118,132" stroke="#E8C97A" stroke-width="2" fill="none" opacity="0.6"/>
+    <path d="M84,152 Q100,162 116,152" stroke="#E8C97A" stroke-width="2" fill="none" opacity="0.6"/>
+
+    <ellipse cx="100" cy="92" rx="52" ry="46" fill="url(#owlBody)"/>
+    <ellipse cx="78" cy="90" rx="20" ry="22" fill="#F5F1FF"/>
+    <ellipse cx="122" cy="90" rx="20" ry="22" fill="#F5F1FF"/>
+    <circle cx="80" cy="92" r="7.5" fill="#211C3B"/>
+    <circle cx="120" cy="92" r="7.5" fill="#211C3B"/>
+    <circle cx="82.5" cy="89" r="2" fill="#fff" opacity="0.9"/>
+    <circle cx="122.5" cy="89" r="2" fill="#fff" opacity="0.9"/>
+    <path d="M62,72 L92,78" stroke="#E8B64A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M138,72 L108,78" stroke="#E8B64A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M93,104 L107,104 L100,118 Z" fill="#E8B64A"/>
+
+    <g>
+      <rect x="58" y="34" width="84" height="9" rx="3" fill="url(#owlWing)"/>
+      <polygon points="100,12 158,38 100,50 42,38" fill="#5B4D8A"/>
+      <circle cx="100" cy="38" r="4.5" fill="#2E2A4D"/>
+      <line x1="148" y1="37" x2="148" y2="66" stroke="#FFD166" stroke-width="2.5"/>
+      <circle cx="148" cy="70" r="5" fill="#FFD166"/>
+    </g>
   </svg>`;
 }
 

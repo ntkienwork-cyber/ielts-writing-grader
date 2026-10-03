@@ -53,8 +53,6 @@ const detailTask2Annotations = document.getElementById('detail-task2-annotations
 // ===================== Decorative illustrations =====================
 function injectIllustrations() {
   document.getElementById('mascot-owl').innerHTML = owlMascotSVG();
-  document.getElementById('mascot-girl').innerHTML = girlStudentSVG();
-  document.getElementById('mascot-boy').innerHTML = boyStudentSVG();
   document.getElementById('icon-task1').innerHTML = pencilPaperSVG();
   document.getElementById('icon-task2').innerHTML = booksIconSVG();
   document.getElementById('icon-mock').innerHTML = trophySVG();
