@@ -521,6 +521,39 @@ async function callClaude(taskType, question, essay) {
   return { parsed: parseJsonFromText(textContent), stopReason: data.stop_reason, textContent };
 }
 
+// The model occasionally stringifies a nested field (e.g. returns
+// "criteria" as a JSON-encoded string instead of a real nested object)
+// even though the tool schema declares it as object/array. Left alone,
+// Object.entries() on that string downstream iterates character-by-
+// character (keys "0","1","2",...), producing dozens of bogus "undefined"
+// criteria cards in the UI. Coerce these back into real objects/arrays.
+function coerceObject(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsedValue = JSON.parse(value);
+      if (parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue)) return parsedValue;
+    } catch {
+      // fall through to empty object below
+    }
+  }
+  return {};
+}
+
+function coerceArray(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsedValue = JSON.parse(value);
+      if (Array.isArray(parsedValue)) return parsedValue;
+    } catch {
+      // not JSON — treat the whole string as a single item below
+    }
+    return value ? [value] : [];
+  }
+  return [];
+}
+
 // A malformed/empty response is now rare since grading goes through a
 // forced tool call (the API guarantees well-formed structured output), but
 // retry once anyway for transient failures, logging enough context to
@@ -547,25 +580,29 @@ async function gradeEssay(taskType, question, essay) {
   }
 
   // Normalize + compute the overall band ourselves rather than trusting model arithmetic.
+  if (typeof parsed.criteria === 'string') {
+    console.warn(`Grading: model returned "criteria" as a JSON string instead of a nested object (taskType=${taskType}); coerced automatically.`);
+  }
   const wordCount = countWords(essay);
-  const criteria = parsed.criteria || {};
+  const criteria = coerceObject(parsed.criteria);
   Object.keys(criteria).forEach((key) => {
-    if (criteria[key] && typeof criteria[key].band !== 'undefined') {
+    criteria[key] = coerceObject(criteria[key]);
+    if (typeof criteria[key].band !== 'undefined') {
       criteria[key].band = applyLengthFloor(clampBandInteger(criteria[key].band), wordCount);
     }
   });
   const bands = Object.values(criteria).map((c) => c.band).filter((n) => typeof n === 'number');
   const overallBand = bands.length ? floorToHalfBand(bands.reduce((a, b) => a + b, 0) / bands.length) : null;
 
-  const annotations = Array.isArray(parsed.annotations) ? parsed.annotations.filter((a) => a && a.quote && essay.includes(a.quote)) : [];
+  const annotations = coerceArray(parsed.annotations).filter((a) => a && a.quote && essay.includes(a.quote));
 
   return {
     wordCount,
     criteria,
     overallBand,
-    strengths: parsed.strengths || [],
-    weaknesses: parsed.weaknesses || [],
-    suggestions: parsed.suggestions || [],
+    strengths: coerceArray(parsed.strengths),
+    weaknesses: coerceArray(parsed.weaknesses),
+    suggestions: coerceArray(parsed.suggestions),
     generalComment: parsed.generalComment || '',
     annotations,
   };
