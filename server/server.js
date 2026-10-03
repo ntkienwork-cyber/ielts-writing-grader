@@ -41,6 +41,7 @@ const TASK1_TA_BANDS = {
     [
       'Some irrelevant, inappropriate or inaccurate information occurs in areas of detail or when illustrating/extending the main points.',
       'Some details are missing or excessive, and further extension or illustration is needed.',
+      "The introduction largely copies the question's own wording instead of genuinely paraphrasing it (little more than swapping one or two words, or reusing its sentence structure almost unchanged).",
     ]
   ),
   5: band(
@@ -200,6 +201,7 @@ const SHARED_LR_BANDS = {
     ['Vocabulary is generally adequate and appropriate for the task; meaning stays generally clear despite a restricted range or some imprecision in word choice.'],
     [
       'There are some errors in spelling and/or word formation.',
+      'The same content words or phrases are noticeably reused many times across the response where a synonym or paraphrase was readily available, instead of showing a varied vocabulary range.',
     ]
   ),
   5: band(
@@ -309,10 +311,10 @@ STEP 6 — In your "explanation" for each criterion, briefly state: (a) the ceil
 const SCANNING_PROCEDURE = `Before applying the scoring algorithm, scan the essay in this order to gather evidence (do not let grammar/spelling distract you during step 1):
 Step 1 — Content & structure scan:
 - Check the word count. Task 1: the ideal target is 150 words; the response MUST be at least 135 words (10% under the benchmark) — falling short of 135 is a real Task Achievement problem, and it SHOULD NOT exceed about 165 words (10% over), though going a little above that is only a minor concern, not a hard violation. Task 2: the response MUST be at least 250 words.
-- Task 1 only: Does the introduction paraphrase the prompt AND state the year(s)/categories/unit of measurement shown in the chart? Does the overview state the main trend(s) and the highest/lowest figures? Do body paragraphs select data consistent with a sensible plan, in a logical order?
+- Task 1 only: Does the introduction paraphrase the prompt AND state the year(s)/categories/unit of measurement shown in the chart? Compare the introduction's wording to the question sentence-by-sentence — if it mostly reuses the question's own words and sentence structure with only one or two words swapped, that is NOT genuine paraphrase, note it explicitly (this matters for Task Achievement). Does the overview state the main trend(s) and the highest/lowest figures? Do body paragraphs select data consistent with a sensible plan, in a logical order?
 - Task 2 only: Does the introduction paraphrase the prompt and preview the writer's two main ideas/position? Do body paragraphs develop and logically link arguments (not ramble off-topic), with examples that directly support the argument being made? Does the conclusion restate the two main ideas without introducing new, unsupported information?
 Step 2 — Grammar scan: look specifically for tense errors, verb conjugation / subject-verb agreement mistakes, wrong word class (e.g. a noun used where an adjective is needed), wrong collocations, missing prepositions, and overuse of short simple sentences that should be combined into complex sentences (e.g. with relative clauses).
-Step 3 — Word choice & spelling scan: look for inappropriate or unnatural synonyms (e.g. "amount of people" instead of "number of people"), awkward/unidiomatic phrases, and spelling mistakes.`;
+Step 3 — Word choice & spelling scan: look for inappropriate or unnatural synonyms (e.g. "amount of people" instead of "number of people"), awkward/unidiomatic phrases, and spelling mistakes. Separately, scan the WHOLE essay for word repetition: note any content word or phrase (e.g. a key noun/verb from the question, like repeating "increase" or "spending" many times) that is reused several times across different sentences/paragraphs where a synonym or paraphrase was readily available — this counts against Lexical Resource even when each individual sentence is grammatically fine.`;
 
 const FEEDBACK_STYLE = `Feedback style rules:
 - Always acknowledge genuine strengths as well as errors — include at least 1-2 "positive" annotations pointing at phrases/sentences the candidate wrote well (good structure, good vocabulary, effective linking, etc.).
