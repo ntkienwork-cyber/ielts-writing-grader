@@ -236,7 +236,7 @@ async function submitExam() {
   resultContent.innerHTML = `
     <div class="loading-box">
       <div class="spinner"></div>
-      <p>Đang chấm bài bằng AI, vui lòng chờ trong giây lát...</p>
+      <p>Bạn vui lòng chờ 1 phút để hệ thống xử lý nha ^^</p>
     </div>`;
 
   try {
